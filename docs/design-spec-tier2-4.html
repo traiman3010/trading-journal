@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Design Spec — Tier 2-4</title>
+<style>
+  :root {
+    --bg: #f5f4ef; --surface: #ffffff; --surface-2: #f1efe8;
+    --border: rgba(0,0,0,0.1); --border-strong: rgba(0,0,0,0.18);
+    --text: #2c2c2a; --text-2: #5f5e5a; --text-3: #8a8980;
+    --info: #185fa5; --info-bg: #e6f1fb; --success: #0f6e56; --success-bg: #e1f5ee;
+    --danger: #a32d2d; --danger-bg: #fcebeb; --warning: #854f0b; --warning-bg: #faeeda;
+    --radius: 8px; --radius-lg: 12px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1f1e1c; --surface: #2a2927; --surface-2: #323230;
+      --border: rgba(255,255,255,0.12); --border-strong: rgba(255,255,255,0.2);
+      --text: #ecebe5; --text-2: #b4b2a9; --text-3: #888780;
+      --info: #85b7eb; --info-bg: #0c447c; --success: #5dcaa5; --success-bg: #085041;
+      --danger: #f09595; --danger-bg: #791f1f; --warning: #f0c674; --warning-bg: #633806;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Sarabun", sans-serif; background: var(--bg); color: var(--text); margin: 0; line-height: 1.6; padding: 0 0 4rem; }
+  .wrap { max-width: 900px; margin: 0 auto; padding: 0 1.5rem; }
+  header.hero { background: var(--surface); border-bottom: 0.5px solid var(--border); padding: 2.5rem 0; margin-bottom: 2rem; }
+  header.hero h1 { font-size: 26px; font-weight: 500; margin: 0 0 8px; }
+  header.hero p { color: var(--text-2); margin: 0; font-size: 15px; }
+  .proj-title { font-size: 20px; font-weight: 500; margin: 3rem 0 4px; padding-bottom: 8px; border-bottom: 2px solid var(--info); display: inline-block; }
+  .proj-desc { color: var(--text-2); font-size: 14px; margin: 0 0 1.5rem; }
+  .page-block { margin-bottom: 2.5rem; }
+  .page-label { font-size: 13px; font-weight: 500; color: var(--info); text-transform: uppercase; letter-spacing: 0.04em; margin: 0 0 4px; }
+  .page-name { font-size: 16px; font-weight: 500; margin: 0 0 8px; }
+  .page-note { font-size: 13px; color: var(--text-2); background: var(--surface-2); border-left: 3px solid var(--info); padding: 8px 12px; margin: 0 0 14px; border-radius: 0; }
+  .canvas { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 1.5rem; overflow-x: auto; }
+  .card { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius-lg); }
+  .stat { background: var(--surface-2); border-radius: var(--radius); padding: 1rem; }
+  .stat-label { font-size: 13px; color: var(--text-2); margin: 0 0 6px; }
+  .stat-val { font-size: 24px; font-weight: 500; margin: 0; }
+  .pos { color: var(--success); } .neg { color: var(--danger); }
+  .badge { font-size: 12px; padding: 2px 8px; border-radius: var(--radius); }
+  .badge-info { background: var(--info-bg); color: var(--info); }
+  .badge-success { background: var(--success-bg); color: var(--success); }
+  .badge-warning { background: var(--warning-bg); color: var(--warning); }
+  .badge-mut { background: var(--surface-2); color: var(--text-2); }
+  .btn { font-size: 14px; padding: 8px 14px; border-radius: var(--radius); border: 0.5px solid var(--border-strong); background: transparent; color: var(--text); cursor: pointer; }
+  .btn-primary { border-color: var(--info); color: var(--info); }
+  .input { width: 100%; font-size: 14px; padding: 8px 12px; border-radius: var(--radius); border: 0.5px solid var(--border-strong); background: var(--surface); color: var(--text); }
+  .lbl { font-size: 13px; color: var(--text-2); display: block; margin-bottom: 6px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { text-align: left; font-weight: 400; color: var(--text-2); padding: 8px 6px; }
+  td { padding: 10px 6px; border-top: 0.5px solid var(--border); }
+  .flex { display: flex; } .between { justify-content: space-between; } .center { align-items: center; }
+  .gap8 { gap: 8px; } .gap12 { gap: 12px; }
+  .grid { display: grid; gap: 12px; }
+  .mb10 { margin-bottom: 10px; } .mb16 { margin-bottom: 16px; } .mb24 { margin-bottom: 24px; }
+  .avatar { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; border: 1.5px solid var(--surface); }
+  .toc { background: var(--surface-2); border-radius: var(--radius-lg); padding: 1.25rem 1.5rem; margin-bottom: 2rem; }
+  .toc h3 { font-size: 15px; font-weight: 500; margin: 0 0 10px; }
+  .toc a { color: var(--info); text-decoration: none; font-size: 14px; display: block; padding: 3px 0; }
+  .toc a:hover { text-decoration: underline; }
+  .kcard { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 10px 12px; }
+  .kcol { background: var(--surface-2); border-radius: var(--radius-lg); padding: 12px; }
+  .note-box { background: var(--warning-bg); border-radius: var(--radius); padding: 1rem 1.25rem; font-size: 14px; }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <h1>Design Spec — Tier 2-4</h1>
+    <p>พิมพ์เขียว UI ต่อจาก Tier 1 · Tier 2 ทำเต็ม · Tier 3 ข้าม (infra) · Tier 4 เป็น inspiration</p>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="toc">
+    <h3>สารบัญ</h3>
+    <a href="#kanban">Tier 2A · Realtime Kanban — board, การ์ดรายละเอียด</a>
+    <a href="#ecom">Tier 2B · E-commerce — รายการสินค้า, ตะกร้า, คำสั่งซื้อ</a>
+    <a href="#tier3">Tier 3 · ทำไมข้าม design</a>
+    <a href="#tier4">Tier 4 · Trading Bot (inspiration เท่านั้น)</a>
+  </div>
+
+  <!-- ===================== KANBAN ===================== -->
+  <h2 class="proj-title" id="kanban">Tier 2A · Realtime Kanban Board</h2>
+  <p class="proj-desc">บอร์ดงาน sync realtime · shadcn: ใช้ dnd-kit สำหรับ drag, Avatar สำหรับ presence</p>
+
+  <div class="page-block">
+    <p class="page-label">หน้า 1</p>
+    <p class="page-name">Board (หน้าหลัก)</p>
+    <p class="page-note">presence avatar มุมขวาบน (ใครออนไลน์) · card ที่กำลังถูกลากโดยคนอื่นแสดงเป็น ghost (เส้นประจาง) = realtime feedback · card ที่กำลังทำมีขอบสีน้ำเงิน + avatar คนรับผิดชอบ · shadcn: dnd-kit + Avatar + Badge</p>
+    <div class="canvas">
+      <div class="flex between center mb24">
+        <div class="flex center gap8"><span style="color:var(--text-2);">▦</span><span style="font-size:16px;font-weight:500;">Sprint Board</span></div>
+        <div class="flex center gap12">
+          <div class="flex"><span class="avatar" style="background:var(--info-bg);color:var(--info);">AB</span><span class="avatar" style="background:var(--success-bg);color:var(--success);margin-left:-8px;">CD</span><span class="avatar" style="background:var(--warning-bg);color:var(--warning);margin-left:-8px;">EF</span></div>
+          <span style="font-size:12px;color:var(--text-3);">3 คนออนไลน์</span>
+        </div>
+      </div>
+      <div class="grid" style="grid-template-columns:1fr 1fr 1fr;">
+        <div class="kcol">
+          <div class="flex between center mb10"><span style="font-size:13px;font-weight:500;">To Do <span style="color:var(--text-3);font-weight:400;">3</span></span><span style="color:var(--text-3);cursor:pointer;">+</span></div>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <div class="kcard"><p style="font-size:13px;margin:0 0 6px;">ออกแบบ database schema</p><span class="badge badge-info">backend</span></div>
+            <div class="kcard"><p style="font-size:13px;margin:0 0 6px;">เขียน API spec</p><span class="badge badge-info">backend</span></div>
+            <div class="kcard"><p style="font-size:13px;margin:0;">setup CI/CD</p></div>
+          </div>
+        </div>
+        <div class="kcol">
+          <div class="flex between center mb10"><span style="font-size:13px;font-weight:500;">In Progress <span style="color:var(--text-3);font-weight:400;">2</span></span><span style="color:var(--text-3);cursor:pointer;">+</span></div>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <div class="kcard" style="border:1px solid var(--info);">
+              <p style="font-size:13px;margin:0 0 6px;">ทำหน้า login</p>
+              <div class="flex between center"><span class="badge badge-success">frontend</span><span class="avatar" style="width:20px;height:20px;font-size:10px;background:var(--info-bg);color:var(--info);border:none;">AB</span></div>
+            </div>
+            <div class="kcard" style="opacity:0.5;border-style:dashed;"><p style="font-size:13px;margin:0;color:var(--text-3);">↕ CD กำลังลาก...</p></div>
+          </div>
+        </div>
+        <div class="kcol">
+          <div class="flex between center mb10"><span style="font-size:13px;font-weight:500;">Done <span style="color:var(--text-3);font-weight:400;">1</span></span><span style="color:var(--text-3);cursor:pointer;">+</span></div>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <div class="kcard"><p style="font-size:13px;margin:0 0 6px;text-decoration:line-through;color:var(--text-3);">ตั้งโปรเจกต์ Next.js</p><span class="badge badge-mut">setup</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-block">
+    <p class="page-label">หน้า 2</p>
+    <p class="page-name">Card รายละเอียด (modal)</p>
+    <p class="page-note">เปิดเมื่อคลิก card · แก้ title, description, assignee, label · การแก้ทุกอย่าง sync realtime · shadcn: Dialog + Textarea + Select</p>
+    <div class="canvas" style="background:var(--surface-2);">
+      <div class="card" style="padding:1.25rem 1.5rem;max-width:520px;margin:0 auto;">
+        <div class="flex between center mb16"><span style="font-size:16px;font-weight:500;">ทำหน้า login</span><span style="color:var(--text-2);cursor:pointer;">✕</span></div>
+        <div class="mb16"><label class="lbl">สถานะ</label><div class="flex gap8"><span class="badge badge-info">In Progress</span></div></div>
+        <div class="mb16"><label class="lbl">รายละเอียด</label><textarea class="input" style="min-height:72px;">ทำหน้า login + register ด้วย Auth.js ใช้ design จาก Tier 1</textarea></div>
+        <div class="grid mb16" style="grid-template-columns:1fr 1fr;">
+          <div><label class="lbl">ผู้รับผิดชอบ</label><div class="flex center gap8"><span class="avatar" style="width:24px;height:24px;font-size:10px;background:var(--info-bg);color:var(--info);border:none;">AB</span><span style="font-size:13px;">Alice B.</span></div></div>
+          <div><label class="lbl">Label</label><span class="badge badge-success">frontend</span></div>
+        </div>
+        <div class="flex gap8" style="justify-content:flex-end;"><button class="btn">ลบการ์ด</button><button class="btn btn-primary">บันทึก</button></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== E-COMMERCE ===================== -->
+  <h2 class="proj-title" id="ecom">Tier 2B · Mini E-commerce</h2>
+  <p class="proj-desc">สินค้า + ตะกร้า + คำสั่งซื้อ · เน้น flow การซื้อที่ตัด stock แบบ atomic</p>
+
+  <div class="page-block">
+    <p class="page-label">หน้า 1</p>
+    <p class="page-name">รายการสินค้า</p>
+    <p class="page-note">grid สินค้า แสดง stock เหลือ (สำคัญ — โยงกับเรื่อง race condition) · ปุ่มเพิ่มลงตะกร้า disable เมื่อ stock หมด · shadcn: Card + Badge</p>
+    <div class="canvas">
+      <div class="flex between center mb24"><span style="font-size:16px;font-weight:500;">สินค้าทั้งหมด</span><button class="btn"><span style="margin-right:4px;">🛒</span> ตะกร้า (2)</button></div>
+      <div class="grid" style="grid-template-columns:1fr 1fr 1fr;">
+        <div class="card" style="padding:12px;">
+          <div style="background:var(--surface-2);border-radius:var(--radius);height:90px;margin-bottom:10px;display:flex;align-items:center;justify-content:center;color:var(--text-3);font-size:12px;">รูปสินค้า</div>
+          <p style="font-size:14px;font-weight:500;margin:0 0 4px;">Mechanical Keyboard</p>
+          <p style="font-size:13px;color:var(--text-2);margin:0 0 8px;">฿2,990 · <span class="pos">เหลือ 12</span></p>
+          <button class="btn btn-primary" style="width:100%;text-align:center;justify-content:center;">เพิ่มลงตะกร้า</button>
+        </div>
+        <div class="card" style="padding:12px;">
+          <div style="background:var(--surface-2);border-radius:var(--radius);height:90px;margin-bottom:10px;display:flex;align-items:center;justify-content:center;color:var(--text-3);font-size:12px;">รูปสินค้า</div>
+          <p style="font-size:14px;font-weight:500;margin:0 0 4px;">Wireless Mouse</p>
+          <p style="font-size:13px;color:var(--text-2);margin:0 0 8px;">฿890 · <span style="color:var(--warning);">เหลือ 2</span></p>
+          <button class="btn btn-primary" style="width:100%;text-align:center;justify-content:center;">เพิ่มลงตะกร้า</button>
+        </div>
+        <div class="card" style="padding:12px;opacity:0.6;">
+          <div style="background:var(--surface-2);border-radius:var(--radius);height:90px;margin-bottom:10px;display:flex;align-items:center;justify-content:center;color:var(--text-3);font-size:12px;">รูปสินค้า</div>
+          <p style="font-size:14px;font-weight:500;margin:0 0 4px;">USB-C Hub</p>
+          <p style="font-size:13px;color:var(--text-2);margin:0 0 8px;">฿1,290 · <span class="neg">หมด</span></p>
+          <button class="btn" style="width:100%;text-align:center;justify-content:center;" disabled>สินค้าหมด</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-block">
+    <p class="page-label">หน้า 2</p>
+    <p class="page-name">ตะกร้า + Checkout</p>
+    <p class="page-note">แสดงรายการ + คำนวณราคารวม · ปุ่ม checkout trigger transaction ที่ตัด stock แบบ atomic (หัวใจของ project) · shadcn: Table + Card</p>
+    <div class="canvas">
+      <div class="grid" style="grid-template-columns:1.6fr 1fr;">
+        <div class="card" style="padding:1rem 1.25rem;">
+          <p style="font-size:14px;font-weight:500;margin:0 0 12px;">ตะกร้าของฉัน</p>
+          <table>
+            <thead><tr><th>สินค้า</th><th style="text-align:center;">จำนวน</th><th style="text-align:right;">ราคา</th></tr></thead>
+            <tbody>
+              <tr><td>Mechanical Keyboard</td><td style="text-align:center;">1</td><td style="text-align:right;">฿2,990</td></tr>
+              <tr><td>Wireless Mouse</td><td style="text-align:center;">2</td><td style="text-align:right;">฿1,780</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="card" style="padding:1rem 1.25rem;">
+          <p style="font-size:14px;font-weight:500;margin:0 0 12px;">สรุปคำสั่งซื้อ</p>
+          <div class="flex between" style="font-size:13px;margin-bottom:8px;"><span style="color:var(--text-2);">ยอดรวม</span><span>฿4,770</span></div>
+          <div class="flex between" style="font-size:13px;margin-bottom:12px;"><span style="color:var(--text-2);">ส่วนลด</span><span class="pos">−฿0</span></div>
+          <div class="flex between" style="font-size:15px;font-weight:500;margin-bottom:16px;padding-top:12px;border-top:0.5px solid var(--border);"><span>รวมสุทธิ</span><span>฿4,770</span></div>
+          <button class="btn btn-primary" style="width:100%;text-align:center;justify-content:center;">สั่งซื้อ</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-block">
+    <p class="page-label">หน้า 3</p>
+    <p class="page-name">ประวัติคำสั่งซื้อ</p>
+    <p class="page-note">แสดง order พร้อม status badge สี · admin เปลี่ยน status ได้ · shadcn: Table + Badge + Select(admin)</p>
+    <div class="canvas">
+      <div class="card" style="padding:1rem 1.25rem;">
+        <p style="font-size:14px;font-weight:500;margin:0 0 12px;">คำสั่งซื้อของฉัน</p>
+        <table>
+          <thead><tr><th>เลขที่</th><th>วันที่</th><th style="text-align:right;">ยอด</th><th style="text-align:center;">สถานะ</th></tr></thead>
+          <tbody>
+            <tr><td style="font-weight:500;">#1042</td><td style="color:var(--text-2);">7 มิ.ย.</td><td style="text-align:right;">฿4,770</td><td style="text-align:center;"><span class="badge badge-warning">pending</span></td></tr>
+            <tr><td style="font-weight:500;">#1038</td><td style="color:var(--text-2);">3 มิ.ย.</td><td style="text-align:right;">฿890</td><td style="text-align:center;"><span class="badge badge-info">shipped</span></td></tr>
+            <tr><td style="font-weight:500;">#1031</td><td style="color:var(--text-2);">28 พ.ค.</td><td style="text-align:right;">฿2,990</td><td style="text-align:center;"><span class="badge badge-success">completed</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== TIER 3 ===================== -->
+  <h2 class="proj-title" id="tier3">Tier 3 · ทำไมข้าม design</h2>
+  <div class="page-block">
+    <div class="note-box">
+      <p style="margin:0 0 8px;font-weight:500;">Tier 3 ไม่มี design spec โดยตั้งใจ</p>
+      <p style="margin:0;color:var(--text-2);">Tier 3 คือการยกระดับเป็น production (Docker, CI/CD, caching, monitoring, testing) ซึ่งเป็นงาน infra ที่<strong>ไม่เพิ่มหน้าจอใหม่</strong>ให้ผู้ใช้ ส่วน dashboard ของ monitoring มักใช้เครื่องมือสำเร็จรูป (Sentry, Grafana) ที่มี UI มาให้แล้ว ไม่ต้องออกแบบเอง — ดูรายละเอียดใน <code>06-production-grade-guide.md</code></p>
+    </div>
+  </div>
+
+  <!-- ===================== TIER 4 ===================== -->
+  <h2 class="proj-title" id="tier4">Tier 4 · Trading Bot (inspiration)</h2>
+  <p class="proj-desc">⚠️ นี่คือ inspiration ไม่ใช่สเปค — scope จริงจะ finalize ตอนคุณเลือกทางและทำจริง หน้าตาจะเปลี่ยนแน่นอน</p>
+
+  <div class="page-block">
+    <p class="page-label">inspiration</p>
+    <p class="page-name">หน้า Backtest Result (ภาพปลายทางคร่าวๆ)</p>
+    <p class="page-note">ให้เห็นว่าปลายทางสาย trading bot หน้าตาประมาณไหน: กราฟ equity เทียบกลยุทธ์ vs buy-and-hold + สถิติผล · อย่ายึดเป็นสเปค</p>
+    <div class="canvas">
+      <div class="flex between center mb24"><span style="font-size:16px;font-weight:500;">Backtest: MA Crossover</span><select class="input" style="width:160px;"><option>BTC · 2020-2024</option></select></div>
+      <div class="grid mb24" style="grid-template-columns:repeat(4,1fr);">
+        <div class="stat"><p class="stat-label">ผลตอบแทนรวm</p><p class="stat-val pos">+142%</p></div>
+        <div class="stat"><p class="stat-label">vs Buy &amp; Hold</p><p class="stat-val">+38%</p></div>
+        <div class="stat"><p class="stat-label">Sharpe ratio</p><p class="stat-val">1.6</p></div>
+        <div class="stat"><p class="stat-label">Max drawdown</p><p class="stat-val neg">−24%</p></div>
+      </div>
+      <div class="card" style="padding:1rem 1.25rem;">
+        <p style="font-size:14px;font-weight:500;margin:0 0 12px;">Equity curve (กลยุทธ์ vs buy-and-hold)</p>
+        <svg viewBox="0 0 600 180" style="width:100%;height:auto;">
+          <polyline fill="none" stroke="#185fa5" stroke-width="2" points="0,160 60,150 120,155 180,120 240,130 300,90 360,70 420,85 480,45 540,30 600,18"/>
+          <polyline fill="none" stroke="#8a8980" stroke-width="1.5" stroke-dasharray="4 4" points="0,160 60,155 120,150 180,140 240,135 300,120 360,115 420,110 480,95 540,88 600,80"/>
+          <line x1="0" y1="172" x2="600" y2="172" stroke="var(--border)" stroke-width="0.5"/>
+        </svg>
+        <div class="flex gap12" style="margin-top:10px;font-size:12px;color:var(--text-2);">
+          <span class="flex center gap8"><span style="width:14px;height:2px;background:#185fa5;display:inline-block;"></span> กลยุทธ์</span>
+          <span class="flex center gap8"><span style="width:14px;height:2px;background:#8a8980;display:inline-block;"></span> buy-and-hold</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

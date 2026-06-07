@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Design Spec — Finance Side Projects</title>
+<style>
+  :root {
+    --bg: #f5f4ef;
+    --surface: #ffffff;
+    --surface-2: #f1efe8;
+    --border: rgba(0,0,0,0.1);
+    --border-strong: rgba(0,0,0,0.18);
+    --text: #2c2c2a;
+    --text-2: #5f5e5a;
+    --text-3: #8a8980;
+    --info: #185fa5;
+    --info-bg: #e6f1fb;
+    --success: #0f6e56;
+    --success-bg: #e1f5ee;
+    --danger: #a32d2d;
+    --danger-bg: #fcebeb;
+    --radius: 8px;
+    --radius-lg: 12px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1f1e1c; --surface: #2a2927; --surface-2: #323230;
+      --border: rgba(255,255,255,0.12); --border-strong: rgba(255,255,255,0.2);
+      --text: #ecebe5; --text-2: #b4b2a9; --text-3: #888780;
+      --info: #85b7eb; --info-bg: #0c447c; --success: #5dcaa5; --success-bg: #085041;
+      --danger: #f09595; --danger-bg: #791f1f;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Sarabun", sans-serif;
+    background: var(--bg); color: var(--text); margin: 0;
+    line-height: 1.6; padding: 0 0 4rem;
+  }
+  .wrap { max-width: 900px; margin: 0 auto; padding: 0 1.5rem; }
+  header.hero {
+    background: var(--surface); border-bottom: 0.5px solid var(--border);
+    padding: 2.5rem 0; margin-bottom: 2rem;
+  }
+  header.hero h1 { font-size: 26px; font-weight: 500; margin: 0 0 8px; }
+  header.hero p { color: var(--text-2); margin: 0; font-size: 15px; }
+  .proj-title {
+    font-size: 20px; font-weight: 500; margin: 3rem 0 4px;
+    padding-bottom: 8px; border-bottom: 2px solid var(--info);
+    display: inline-block;
+  }
+  .proj-desc { color: var(--text-2); font-size: 14px; margin: 0 0 1.5rem; }
+  .page-block { margin-bottom: 2.5rem; }
+  .page-label {
+    font-size: 13px; font-weight: 500; color: var(--info);
+    text-transform: uppercase; letter-spacing: 0.04em; margin: 0 0 4px;
+  }
+  .page-name { font-size: 16px; font-weight: 500; margin: 0 0 8px; }
+  .page-note {
+    font-size: 13px; color: var(--text-2); background: var(--surface-2);
+    border-left: 3px solid var(--info); padding: 8px 12px; margin: 0 0 14px;
+    border-radius: 0;
+  }
+  .canvas {
+    background: var(--surface); border: 0.5px solid var(--border);
+    border-radius: var(--radius-lg); padding: 1.5rem; overflow-x: auto;
+  }
+  .card { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius-lg); }
+  .stat { background: var(--surface-2); border-radius: var(--radius); padding: 1rem; }
+  .stat-label { font-size: 13px; color: var(--text-2); margin: 0 0 6px; }
+  .stat-val { font-size: 24px; font-weight: 500; margin: 0; }
+  .pos { color: var(--success); } .neg { color: var(--danger); }
+  .badge { font-size: 12px; padding: 2px 8px; border-radius: var(--radius); }
+  .badge-long { background: var(--success-bg); color: var(--success); }
+  .badge-short { background: var(--danger-bg); color: var(--danger); }
+  .badge-info { background: var(--info-bg); color: var(--info); }
+  .badge-mut { background: var(--surface-2); color: var(--text-2); }
+  .btn {
+    font-size: 14px; padding: 8px 14px; border-radius: var(--radius);
+    border: 0.5px solid var(--border-strong); background: transparent;
+    color: var(--text); cursor: pointer;
+  }
+  .btn-primary { border-color: var(--info); color: var(--info); }
+  .input {
+    width: 100%; font-size: 14px; padding: 8px 12px; border-radius: var(--radius);
+    border: 0.5px solid var(--border-strong); background: var(--surface); color: var(--text);
+  }
+  .lbl { font-size: 13px; color: var(--text-2); display: block; margin-bottom: 6px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { text-align: left; font-weight: 400; color: var(--text-2); padding: 8px 6px; }
+  td { padding: 10px 6px; border-top: 0.5px solid var(--border); }
+  .flex { display: flex; } .between { justify-content: space-between; }
+  .center { align-items: center; } .gap8 { gap: 8px; } .gap12 { gap: 12px; } .gap14 { gap: 14px; }
+  .grid { display: grid; gap: 12px; }
+  .mb12 { margin-bottom: 12px; } .mb16 { margin-bottom: 16px; } .mb24 { margin-bottom: 24px; }
+  .toggle { position: relative; display: inline-block; width: 36px; height: 20px; flex-shrink: 0; }
+  .toggle .track { position: absolute; inset: 0; border-radius: 10px; }
+  .toggle .knob { position: absolute; top: 2px; width: 16px; height: 16px; background: #fff; border-radius: 50%; }
+  .on .track { background: var(--info); } .on .knob { left: 18px; }
+  .off .track { background: var(--border-strong); } .off .knob { left: 2px; }
+  .toc { background: var(--surface-2); border-radius: var(--radius-lg); padding: 1.25rem 1.5rem; margin-bottom: 2rem; }
+  .toc h3 { font-size: 15px; font-weight: 500; margin: 0 0 10px; }
+  .toc a { color: var(--info); text-decoration: none; font-size: 14px; display: block; padding: 3px 0; }
+  .toc a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <h1>Design Spec — Finance Side Projects</h1>
+    <p>พิมพ์เขียว UI สำหรับ 3 โปรเจกต์ · ใช้ implement ด้วย Next.js + shadcn/ui · เก็บไว้ป้อน Claude เพื่อ review</p>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="toc">
+    <h3>สารบัญ</h3>
+    <a href="#nav">0. Navigation — sidebar pattern (ใช้ทั้ง 3 project)</a>
+    <a href="#tj">1. Trading Journal — dashboard, ฟอร์มบันทึก, list/filter, login</a>
+    <a href="#pt">2. Portfolio Tracker — สรุปพอร์ต, ฟอร์มเพิ่มสินทรัพย์</a>
+    <a href="#pa">3. Price Alert System — จัดการ alert, ประวัติแจ้งเตือน</a>
+    <a href="#notes">หมายเหตุการใช้งาน</a>
+  </div>
+
+  <!-- ===================== NAVIGATION ===================== -->
+  <h2 class="proj-title" id="nav">0 · Navigation Pattern</h2>
+  <p class="proj-desc">sidebar ซ้าย ใช้โครงเดียวกันทั้ง 3 project · shadcn: Sidebar (desktop) + Sheet (mobile hamburger)</p>
+  <div class="page-block">
+    <p class="page-note">ทำไมเลือก sidebar ไม่ใช่ navbar บน: (1) รองรับเมนูเพิ่มได้ไม่แออัด (2) เป็น pattern มาตรฐานแอป fintech/SaaS (3) shadcn มี Sidebar component สำเร็จรูป · โครงสร้าง: โลโก้บน → เมนูกลาง → บัญชีล่าง · มือถือยุบเป็น hamburger</p>
+    <div class="canvas">
+      <div class="grid" style="grid-template-columns:1fr 1fr 1fr;">
+        <div class="card" style="overflow:hidden;">
+          <div style="background:var(--surface-2);padding:12px 14px;display:flex;align-items:center;gap:8px;border-bottom:0.5px solid var(--border);"><span style="color:var(--info);">📓</span><span style="font-size:14px;font-weight:500;">Trading Journal</span></div>
+          <div style="padding:8px;">
+            <div style="padding:8px 10px;border-radius:var(--radius);background:var(--info-bg);color:var(--info);font-size:13px;margin-bottom:2px;">▦ Dashboard</div>
+            <div style="padding:8px 10px;color:var(--text-2);font-size:13px;margin-bottom:2px;">☰ การเทรดทั้งหมด</div>
+            <div style="padding:8px 10px;color:var(--text-2);font-size:13px;margin-bottom:2px;">🏷 กลยุทธ์/แท็ก</div>
+            <div style="padding:8px 10px;color:var(--text-2);font-size:13px;">⚙ ตั้งค่า</div>
+          </div>
+          <div style="padding:8px;border-top:0.5px solid var(--border);"><div style="display:flex;align-items:center;gap:8px;padding:6px 10px;font-size:13px;"><span style="width:26px;height:26px;border-radius:50%;background:var(--info-bg);color:var(--info);display:flex;align-items:center;justify-content:center;font-size:11px;">ME</span><span style="color:var(--text-2);">บัญชีของฉัน</span></div></div>
+        </div>
+        <div class="card" style="overflow:hidden;">
+          <div style="background:var(--surface-2);padding:12px 14px;display:flex;align-items:center;gap:8px;border-bottom:0.5px solid var(--border);"><span style="color:var(--info);">◔</span><span style="font-size:14px;font-weight:500;">Portfolio Tracker</span></div>
+          <div style="padding:8px;">
+            <div style="padding:8px 10px;border-radius:var(--radius);background:var(--info-bg);color:var(--info);font-size:13px;margin-bottom:2px;">◔ สรุปพอร์ต</div>
+            <div style="padding:8px 10px;color:var(--text-2);font-size:13px;margin-bottom:2px;">◎ สินทรัพย์</div>
+            <div style="padding:8px 10px;color:var(--text-2);font-size:13px;">⚙ ตั้งค่า</div>
+          </div>
+          <div style="padding:8px;border-top:0.5px solid var(--border);"><div style="display:flex;align-items:center;gap:8px;padding:6px 10px;font-size:13px;"><span style="width:26px;height:26px;border-radius:50%;background:var(--info-bg);color:var(--info);display:flex;align-items:center;justify-content:center;font-size:11px;">ME</span><span style="color:var(--text-2);">บัญชีของฉัน</span></div></div>
+        </div>
+        <div class="card" style="overflow:hidden;">
+          <div style="background:var(--surface-2);padding:12px 14px;display:flex;align-items:center;gap:8px;border-bottom:0.5px solid var(--border);"><span style="color:var(--info);">🔔</span><span style="font-size:14px;font-weight:500;">Price Alerts</span></div>
+          <div style="padding:8px;">
+            <div style="padding:8px 10px;border-radius:var(--radius);background:var(--info-bg);color:var(--info);font-size:13px;margin-bottom:2px;">🔔 Alerts</div>
+            <div style="padding:8px 10px;color:var(--text-2);font-size:13px;margin-bottom:2px;">🕐 ประวัติ</div>
+            <div style="padding:8px 10px;color:var(--text-2);font-size:13px;">⚙ ตั้งค่า</div>
+          </div>
+          <div style="padding:8px;border-top:0.5px solid var(--border);"><div style="display:flex;align-items:center;gap:8px;padding:6px 10px;font-size:13px;"><span style="width:26px;height:26px;border-radius:50%;background:var(--info-bg);color:var(--info);display:flex;align-items:center;justify-content:center;font-size:11px;">ME</span><span style="color:var(--text-2);">บัญชีของฉัน</span></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== TRADING JOURNAL ===================== -->
+  <h2 class="proj-title" id="tj">1 · Trading Journal</h2>
+  <p class="proj-desc">สมุดบันทึกการเทรดพร้อมวิเคราะห์สถิติ · ฝึก CRUD + aggregation + auth</p>
+
+  <!-- Dashboard -->
+  <div class="page-block">
+    <p class="page-label">หน้า 1</p>
+    <p class="page-name">Dashboard</p>
+    <p class="page-note">layout 3 ชั้น: การ์ดสถิติ 4 ใบ → กราฟ 2 ตัว (equity curve + กำไรแยกกลยุทธ์) → ตารางเทรดล่าสุด · shadcn: Card, Table, Badge + Recharts</p>
+    <div class="canvas">
+      <div class="flex between center mb24">
+        <span style="font-size:18px;font-weight:500;">Trading Journal</span>
+        <div class="flex gap8 center">
+          <select class="input" style="width:130px;"><option>30 วันล่าสุด</option></select>
+          <button class="btn btn-primary">+ บันทึกเทรด</button>
+        </div>
+      </div>
+      <div class="grid mb24" style="grid-template-columns:repeat(4,1fr);">
+        <div class="stat"><p class="stat-label">กำไร-ขาดทุนรวม</p><p class="stat-val pos">+$4,820</p></div>
+        <div class="stat"><p class="stat-label">Win rate</p><p class="stat-val">62%</p></div>
+        <div class="stat"><p class="stat-label">Avg R:R</p><p class="stat-val">1.8</p></div>
+        <div class="stat"><p class="stat-label">จำนวนเทรด</p><p class="stat-val">47</p></div>
+      </div>
+      <div class="grid mb24" style="grid-template-columns:1.6fr 1fr;">
+        <div class="card" style="padding:1rem 1.25rem;">
+          <p style="font-size:14px;font-weight:500;margin:0 0 12px;">Equity curve (ผลตอบแทนสะสม)</p>
+          <svg viewBox="0 0 400 150" style="width:100%;height:auto;">
+            <polyline fill="none" stroke="#1D9E75" stroke-width="2" points="0,130 40,120 80,125 120,100 160,105 200,80 240,70 280,75 320,45 360,35 400,20"/>
+            <line x1="0" y1="145" x2="400" y2="145" stroke="var(--border)" stroke-width="0.5"/>
+          </svg>
+        </div>
+        <div class="card" style="padding:1rem 1.25rem;">
+          <p style="font-size:14px;font-weight:500;margin:0 0 12px;">กำไรแยกตามกลยุทธ์</p>
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <div><div class="flex between" style="font-size:13px;margin-bottom:4px;"><span>Breakout</span><span class="pos">+$2,400</span></div><div style="height:6px;background:var(--surface-2);border-radius:3px;"><div style="width:75%;height:100%;background:#1D9E75;border-radius:3px;"></div></div></div>
+            <div><div class="flex between" style="font-size:13px;margin-bottom:4px;"><span>Swing</span><span class="pos">+$1,900</span></div><div style="height:6px;background:var(--surface-2);border-radius:3px;"><div style="width:60%;height:100%;background:#1D9E75;border-radius:3px;"></div></div></div>
+            <div><div class="flex between" style="font-size:13px;margin-bottom:4px;"><span>Scalp</span><span class="neg">−$480</span></div><div style="height:6px;background:var(--surface-2);border-radius:3px;"><div style="width:18%;height:100%;background:#E24B4A;border-radius:3px;"></div></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" style="padding:1rem 1.25rem;">
+        <p style="font-size:14px;font-weight:500;margin:0 0 12px;">การเทรดล่าสุด</p>
+        <table>
+          <thead><tr><th>สินทรัพย์</th><th>ทิศทาง</th><th>กลยุทธ์</th><th style="text-align:right;">P&amp;L</th></tr></thead>
+          <tbody>
+            <tr><td style="font-weight:500;">BTCUSDT</td><td><span class="badge badge-long">Long</span></td><td style="color:var(--text-2);">Breakout</td><td style="text-align:right;" class="pos">+$840</td></tr>
+            <tr><td style="font-weight:500;">AAPL</td><td><span class="badge badge-short">Short</span></td><td style="color:var(--text-2);">Swing</td><td style="text-align:right;" class="neg">−$210</td></tr>
+            <tr><td style="font-weight:500;">ETHUSDT</td><td><span class="badge badge-long">Long</span></td><td style="color:var(--text-2);">Breakout</td><td style="text-align:right;" class="pos">+$520</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Trade Form -->
+  <div class="page-block">
+    <p class="page-label">หน้า 2</p>
+    <p class="page-name">ฟอร์มบันทึกการเทรด</p>
+    <p class="page-note">จุดสำคัญ: ช่อง P&amp;L เป็น read-only คำนวณจาก backend ผู้ใช้กรอกไม่ได้ (ตรงกับ US-2) · shadcn: Dialog + Form + Input + Textarea</p>
+    <div class="canvas" style="background:var(--surface-2);">
+      <div class="card" style="padding:1.25rem 1.5rem;max-width:560px;margin:0 auto;">
+        <div class="flex between center mb24"><span style="font-size:18px;font-weight:500;">บันทึกการเทรด</span><span style="color:var(--text-2);cursor:pointer;">✕</span></div>
+        <div class="grid mb12" style="grid-template-columns:1fr 1fr;gap:14px;">
+          <div><label class="lbl">สินทรัพย์</label><input class="input" placeholder="เช่น BTCUSDT"></div>
+          <div><label class="lbl">ทิศทาง</label><select class="input"><option>Long</option><option>Short</option></select></div>
+        </div>
+        <div class="grid mb12" style="grid-template-columns:1fr 1fr;gap:14px;">
+          <div><label class="lbl">ราคาเข้า</label><input class="input" placeholder="0.00"></div>
+          <div><label class="lbl">ราคาออก</label><input class="input" placeholder="0.00"></div>
+        </div>
+        <div class="grid mb12" style="grid-template-columns:1fr 1fr;gap:14px;">
+          <div><label class="lbl">จำนวน</label><input class="input" placeholder="0"></div>
+          <div><label class="lbl">ค่าธรรมเนียม</label><input class="input" placeholder="0.00"></div>
+        </div>
+        <div class="grid mb12" style="grid-template-columns:1fr 1fr;gap:14px;">
+          <div><label class="lbl">วันที่เข้า</label><input class="input" placeholder="2026-06-01"></div>
+          <div><label class="lbl">วันที่ออก</label><input class="input" placeholder="2026-06-03"></div>
+        </div>
+        <div class="mb12"><label class="lbl">แท็กกลยุทธ์</label><div class="flex gap8"><span class="badge badge-info">Breakout ✕</span><span class="badge badge-mut" style="border:0.5px solid var(--border-strong);cursor:pointer;">+ เพิ่มแท็ก</span></div></div>
+        <div class="mb16"><label class="lbl">โน้ต (เหตุผลที่เข้าเทรด)</label><textarea class="input" style="min-height:64px;" placeholder="เช่น ราคาทะลุแนวต้าน volume สูง..."></textarea></div>
+        <div class="stat flex between center mb16"><span style="font-size:13px;color:var(--text-2);">P&amp;L (คำนวณอัตโนมัติ)</span><span style="font-size:18px;font-weight:500;" class="pos">+$840.00</span></div>
+        <div class="flex gap8" style="justify-content:flex-end;"><button class="btn">ยกเลิก</button><button class="btn btn-primary">บันทึก</button></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Trade List -->
+  <div class="page-block">
+    <p class="page-label">หน้า 3</p>
+    <p class="page-name">รายการการเทรด + filter</p>
+    <p class="page-note">แถบ filter (ค้นหา + dropdown 3 ตัว) map กับ query param ใน API: ?symbol=&amp;result=&amp;tag= · pagination ด้านล่าง (US-5) · shadcn: Input, Select, Table, Pagination</p>
+    <div class="canvas">
+      <div class="flex between center mb16"><span style="font-size:18px;font-weight:500;">การเทรดทั้งหมด</span><button class="btn btn-primary">+ บันทึกเทรด</button></div>
+      <div class="flex gap8 center mb16" style="flex-wrap:wrap;">
+        <input class="input" style="flex:1;min-width:180px;" placeholder="🔍 ค้นหาสินทรัพย์...">
+        <select class="input" style="width:130px;"><option>ทุกสินทรัพย์</option></select>
+        <select class="input" style="width:120px;"><option>ทุกผล</option><option>กำไร</option><option>ขาดทุน</option></select>
+        <select class="input" style="width:130px;"><option>ทุกกลยุทธ์</option></select>
+      </div>
+      <div class="card" style="overflow:hidden;">
+        <table>
+          <thead><tr style="background:var(--surface-2);"><th style="padding-left:14px;">สินทรัพย์</th><th>ทิศทาง</th><th>เข้า/ออก</th><th>กลยุทธ์</th><th style="text-align:right;">P&amp;L</th><th style="width:60px;"></th></tr></thead>
+          <tbody>
+            <tr><td style="font-weight:500;padding-left:14px;">BTCUSDT</td><td><span class="badge badge-long">Long</span></td><td style="color:var(--text-2);">42k / 44k</td><td style="color:var(--text-2);">Breakout</td><td style="text-align:right;font-weight:500;" class="pos">+$840</td><td style="text-align:right;color:var(--text-3);">✎ 🗑</td></tr>
+            <tr><td style="font-weight:500;padding-left:14px;">AAPL</td><td><span class="badge badge-short">Short</span></td><td style="color:var(--text-2);">195 / 198</td><td style="color:var(--text-2);">Swing</td><td style="text-align:right;font-weight:500;" class="neg">−$210</td><td style="text-align:right;color:var(--text-3);">✎ 🗑</td></tr>
+            <tr><td style="font-weight:500;padding-left:14px;">ETHUSDT</td><td><span class="badge badge-long">Long</span></td><td style="color:var(--text-2);">2.4k / 2.5k</td><td style="color:var(--text-2);">Breakout</td><td style="text-align:right;font-weight:500;" class="pos">+$520</td><td style="text-align:right;color:var(--text-3);">✎ 🗑</td></tr>
+            <tr><td style="font-weight:500;padding-left:14px;">SOLUSDT</td><td><span class="badge badge-long">Long</span></td><td style="color:var(--text-2);">140 / 138</td><td style="color:var(--text-2);">Scalp</td><td style="text-align:right;font-weight:500;" class="neg">−$160</td><td style="text-align:right;color:var(--text-3);">✎ 🗑</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="flex between center" style="margin-top:1rem;">
+        <span style="font-size:13px;color:var(--text-2);">แสดง 1-4 จาก 47 รายการ</span>
+        <div class="flex gap8"><button class="btn">‹</button><button class="btn btn-primary">1</button><button class="btn">2</button><button class="btn">3</button><button class="btn">›</button></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Login -->
+  <div class="page-block">
+    <p class="page-label">หน้า 4</p>
+    <p class="page-name">เข้าสู่ระบบ (ใช้ซ้ำได้ทั้ง 3 project)</p>
+    <p class="page-note">pattern auth กลาง · shadcn: Card + Form + Input · ปุ่ม submit เต็มความกว้าง</p>
+    <div class="canvas" style="background:var(--surface-2);">
+      <div class="card" style="padding:2rem;max-width:380px;margin:0 auto;">
+        <div style="text-align:center;margin-bottom:1.5rem;">
+          <div style="font-size:32px;">📓</div>
+          <p style="font-size:18px;font-weight:500;margin:10px 0 4px;">เข้าสู่ระบบ</p>
+          <p style="font-size:13px;color:var(--text-2);margin:0;">Trading Journal</p>
+        </div>
+        <div class="mb12"><label class="lbl">อีเมล</label><input class="input" placeholder="you@example.com"></div>
+        <div class="mb16"><label class="lbl">รหัสผ่าน</label><input class="input" type="password" placeholder="••••••••"></div>
+        <button class="btn btn-primary" style="width:100%;text-align:center;justify-content:center;margin-bottom:14px;">เข้าสู่ระบบ</button>
+        <p style="font-size:13px;color:var(--text-2);text-align:center;margin:0;">ยังไม่มีบัญชี? <span style="color:var(--info);cursor:pointer;">สมัครสมาชิก</span></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== PORTFOLIO TRACKER ===================== -->
+  <h2 class="proj-title" id="pt">2 · Portfolio Tracker</h2>
+  <p class="proj-desc">ติดตามพอร์ตพร้อมราคาปัจจุบัน · ฝึก external API + caching</p>
+
+  <!-- Portfolio Overview -->
+  <div class="page-block">
+    <p class="page-label">หน้า 1</p>
+    <p class="page-name">สรุปพอร์ต</p>
+    <p class="page-note">ป้าย "อัปเดต 30 วินาทีที่แล้ว" คือการสื่อสารเรื่อง cache ให้ผู้ใช้เห็น (หัวใจของ project) · กราฟ donut สัดส่วน + ตาราง holding พร้อมราคา realtime · shadcn: Card, Table + Recharts PieChart</p>
+    <div class="canvas">
+      <div class="flex between center mb24">
+        <span style="font-size:18px;font-weight:500;">Portfolio Tracker</span>
+        <div class="flex gap8 center"><span style="font-size:12px;color:var(--text-3);">↻ อัปเดต 30 วินาทีที่แล้ว</span><button class="btn btn-primary">+ เพิ่มสินทรัพย์</button></div>
+      </div>
+      <div class="grid mb24" style="grid-template-columns:repeat(3,1fr);">
+        <div class="stat"><p class="stat-label">มูลค่าพอร์ตรวม</p><p class="stat-val">$28,450</p></div>
+        <div class="stat"><p class="stat-label">กำไร-ขาดทุนรวม</p><p class="stat-val pos">+$3,210</p></div>
+        <div class="stat"><p class="stat-label">ผลตอบแทน</p><p class="stat-val pos">+12.7%</p></div>
+      </div>
+      <div class="grid" style="grid-template-columns:1fr 1.6fr;">
+        <div class="card" style="padding:1rem 1.25rem;">
+          <p style="font-size:14px;font-weight:500;margin:0 0 16px;">สัดส่วนพอร์ต</p>
+          <div style="display:flex;justify-content:center;margin-bottom:16px;">
+            <svg viewBox="0 0 100 100" style="width:120px;height:120px;">
+              <circle cx="50" cy="50" r="40" fill="none" stroke="#378ADD" stroke-width="20" stroke-dasharray="113 251" transform="rotate(-90 50 50)"/>
+              <circle cx="50" cy="50" r="40" fill="none" stroke="#1D9E75" stroke-width="20" stroke-dasharray="75 251" stroke-dashoffset="-113" transform="rotate(-90 50 50)"/>
+              <circle cx="50" cy="50" r="40" fill="none" stroke="#EF9F27" stroke-width="20" stroke-dasharray="63 251" stroke-dashoffset="-188" transform="rotate(-90 50 50)"/>
+            </svg>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px;font-size:13px;">
+            <div class="flex center gap8"><span style="width:10px;height:10px;border-radius:2px;background:#378ADD;"></span>BTC <span style="margin-left:auto;color:var(--text-2);">45%</span></div>
+            <div class="flex center gap8"><span style="width:10px;height:10px;border-radius:2px;background:#1D9E75;"></span>ETH <span style="margin-left:auto;color:var(--text-2);">30%</span></div>
+            <div class="flex center gap8"><span style="width:10px;height:10px;border-radius:2px;background:#EF9F27;"></span>AAPL <span style="margin-left:auto;color:var(--text-2);">25%</span></div>
+          </div>
+        </div>
+        <div class="card" style="padding:1rem 1.25rem;">
+          <p style="font-size:14px;font-weight:500;margin:0 0 12px;">สินทรัพย์ที่ถือ</p>
+          <table>
+            <thead><tr><th>สินทรัพย์</th><th style="text-align:right;">ราคาปัจจุบัน</th><th style="text-align:right;">มูลค่า</th><th style="text-align:right;">P&amp;L</th></tr></thead>
+            <tbody>
+              <tr><td style="font-weight:500;">BTC</td><td style="text-align:right;">$64,200</td><td style="text-align:right;">$12,800</td><td style="text-align:right;" class="pos">+18%</td></tr>
+              <tr><td style="font-weight:500;">ETH</td><td style="text-align:right;">$3,420</td><td style="text-align:right;">$8,550</td><td style="text-align:right;" class="pos">+9%</td></tr>
+              <tr><td style="font-weight:500;">AAPL</td><td style="text-align:right;">$214</td><td style="text-align:right;">$7,100</td><td style="text-align:right;" class="neg">−3%</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Holding -->
+  <div class="page-block">
+    <p class="page-label">หน้า 2</p>
+    <p class="page-name">ฟอร์มเพิ่มสินทรัพย์</p>
+    <p class="page-note">ช่อง symbol มี indicator ยืนยันว่า validate กับ API แล้ว (✓ Bitcoin) ตรงกับ US-1 · toggle ประเภท crypto/stock · shadcn: Dialog, Input (พร้อม async validation), ToggleGroup</p>
+    <div class="canvas" style="background:var(--surface-2);">
+      <div class="card" style="padding:1.25rem 1.5rem;max-width:480px;margin:0 auto;">
+        <div class="flex between center mb24"><span style="font-size:18px;font-weight:500;">เพิ่มสินทรัพย์</span><span style="color:var(--text-2);cursor:pointer;">✕</span></div>
+        <div class="mb12">
+          <label class="lbl">สัญลักษณ์ (symbol)</label>
+          <div style="position:relative;"><input class="input" value="BTC" style="padding-right:80px;"><span style="position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:12px;" class="pos">✓ Bitcoin</span></div>
+          <p style="font-size:12px;color:var(--text-3);margin:6px 0 0;">ระบบตรวจสอบกับ API ว่าสัญลักษณ์มีอยู่จริง</p>
+        </div>
+        <div class="mb12"><label class="lbl">ประเภท</label><div class="flex gap8"><span class="badge badge-info" style="flex:1;text-align:center;padding:8px;cursor:pointer;">Crypto</span><span class="badge badge-mut" style="flex:1;text-align:center;padding:8px;border:0.5px solid var(--border-strong);cursor:pointer;">Stock</span></div></div>
+        <div class="grid mb16" style="grid-template-columns:1fr 1fr;gap:14px;"><div><label class="lbl">จำนวน</label><input class="input" placeholder="0.5"></div><div><label class="lbl">ราคาทุนเฉลี่ย</label><input class="input" placeholder="54000"></div></div>
+        <div class="flex gap8" style="justify-content:flex-end;"><button class="btn">ยกเลิก</button><button class="btn btn-primary">เพิ่ม</button></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== PRICE ALERT ===================== -->
+  <h2 class="proj-title" id="pa">3 · Price Alert System</h2>
+  <p class="proj-desc">ระบบแจ้งเตือนเมื่อราคาถึงเป้า · ฝึก background job + idempotency</p>
+
+  <!-- Alert List -->
+  <div class="page-block">
+    <p class="page-label">หน้า 1</p>
+    <p class="page-name">จัดการ alert</p>
+    <p class="page-note">แต่ละ alert เป็นการ์ด มี toggle เปิด/ปิด (active/paused) แสดงราคาปัจจุบันเทียบเป้า (US-1) · การ์ด paused จาง · shadcn: Card, Switch, Badge</p>
+    <div class="canvas">
+      <div class="flex between center mb24"><span style="font-size:18px;font-weight:500;">Price Alerts</span><button class="btn btn-primary">+ สร้าง alert</button></div>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div class="card flex center gap14" style="padding:1rem 1.25rem;">
+          <div style="flex:1;"><div class="flex center gap8" style="margin-bottom:4px;"><span style="font-size:15px;font-weight:500;">BTCUSDT</span><span class="badge badge-long">active</span></div><p style="font-size:13px;color:var(--text-2);margin:0;">แจ้งเมื่อราคา <span style="color:var(--text);">≥ $70,000</span> · ส่งทาง LINE</p></div>
+          <span style="font-size:13px;color:var(--text-2);">ปัจจุบัน $64,200</span>
+          <span class="toggle on"><span class="track"></span><span class="knob"></span></span>
+          <span style="color:var(--text-3);cursor:pointer;">🗑</span>
+        </div>
+        <div class="card flex center gap14" style="padding:1rem 1.25rem;">
+          <div style="flex:1;"><div class="flex center gap8" style="margin-bottom:4px;"><span style="font-size:15px;font-weight:500;">ETHUSDT</span><span class="badge badge-long">active</span></div><p style="font-size:13px;color:var(--text-2);margin:0;">แจ้งเมื่อราคา <span style="color:var(--text);">≤ $3,000</span> · ส่งทาง Email</p></div>
+          <span style="font-size:13px;color:var(--text-2);">ปัจจุบัน $3,420</span>
+          <span class="toggle on"><span class="track"></span><span class="knob"></span></span>
+          <span style="color:var(--text-3);cursor:pointer;">🗑</span>
+        </div>
+        <div class="card flex center gap14" style="padding:1rem 1.25rem;opacity:0.6;">
+          <div style="flex:1;"><div class="flex center gap8" style="margin-bottom:4px;"><span style="font-size:15px;font-weight:500;">AAPL</span><span class="badge badge-mut">paused</span></div><p style="font-size:13px;color:var(--text-2);margin:0;">แจ้งเมื่อราคา <span style="color:var(--text);">≥ $230</span> · ส่งทาง Email</p></div>
+          <span style="font-size:13px;color:var(--text-2);">ปัจจุบัน $214</span>
+          <span class="toggle off"><span class="track"></span><span class="knob"></span></span>
+          <span style="color:var(--text-3);cursor:pointer;">🗑</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Alert History -->
+  <div class="page-block">
+    <p class="page-label">หน้า 2</p>
+    <p class="page-name">ประวัติการแจ้งเตือน</p>
+    <p class="page-note">timeline แสดง alert ที่เคย trigger พร้อมราคา ณ ตอนนั้นและเวลา (US-3) · ไอคอนลูกศรขึ้น/ลงสื่อทิศทางเงื่อนไข · shadcn: Card + list</p>
+    <div class="canvas">
+      <div class="flex center gap8 mb24"><span style="font-size:18px;">🕐</span><span style="font-size:18px;font-weight:500;">ประวัติการแจ้งเตือน</span></div>
+      <div class="card" style="padding:0.5rem 1.25rem;">
+        <div class="flex center gap14" style="padding:14px 0;border-bottom:0.5px solid var(--border);">
+          <div style="width:36px;height:36px;border-radius:50%;background:var(--success-bg);display:flex;align-items:center;justify-content:center;color:var(--success);">↑</div>
+          <div style="flex:1;"><p style="font-size:14px;font-weight:500;margin:0 0 2px;">BTCUSDT ถึงเป้า $70,000</p><p style="font-size:13px;color:var(--text-2);margin:0;">ราคา ณ ตอนนั้น $70,120 · ส่งทาง LINE</p></div>
+          <span style="font-size:12px;color:var(--text-3);">2 ชม.ที่แล้ว</span>
+        </div>
+        <div class="flex center gap14" style="padding:14px 0;border-bottom:0.5px solid var(--border);">
+          <div style="width:36px;height:36px;border-radius:50%;background:var(--danger-bg);display:flex;align-items:center;justify-content:center;color:var(--danger);">↓</div>
+          <div style="flex:1;"><p style="font-size:14px;font-weight:500;margin:0 0 2px;">SOLUSDT ต่ำกว่า $130</p><p style="font-size:13px;color:var(--text-2);margin:0;">ราคา ณ ตอนนั้น $128.40 · ส่งทาง Email</p></div>
+          <span style="font-size:12px;color:var(--text-3);">เมื่อวาน</span>
+        </div>
+        <div class="flex center gap14" style="padding:14px 0;">
+          <div style="width:36px;height:36px;border-radius:50%;background:var(--success-bg);display:flex;align-items:center;justify-content:center;color:var(--success);">↑</div>
+          <div style="flex:1;"><p style="font-size:14px;font-weight:500;margin:0 0 2px;">ETHUSDT ถึงเป้า $3,500</p><p style="font-size:13px;color:var(--text-2);margin:0;">ราคา ณ ตอนนั้น $3,512 · ส่งทาง Email</p></div>
+          <span style="font-size:12px;color:var(--text-3);">3 วันที่แล้ว</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notes -->
+  <h2 class="proj-title" id="notes">หมายเหตุการใช้งาน</h2>
+  <div class="card" style="padding:1.25rem 1.5rem;">
+    <p style="margin:0 0 12px;font-size:14px;">พิมพ์เขียวนี้เป็น <strong>guideline ไม่ใช่สเปคตายตัว</strong> — ปรับได้ตามจริงตอน implement</p>
+    <ul style="margin:0;padding-left:1.2rem;font-size:14px;color:var(--text-2);line-height:1.9;">
+      <li>สี: เขียว = กำไร, แดง = ขาดทุน, น้ำเงิน = action/active — ใช้ token จาก shadcn ได้เลย</li>
+      <li>หลาย component ซ้ำกัน (การ์ดสถิติ, ตาราง, ฟอร์ม modal) — ทำเป็น reusable component ครั้งเดียวใช้ได้ทุก project</li>
+      <li>กราฟทั้งหมดใช้ Recharts (มากับ ecosystem React อยู่แล้ว)</li>
+      <li>หน้า login เป็น pattern กลาง ใช้ได้ทั้ง 3 project แค่เปลี่ยนชื่อ+ไอคอน</li>
+      <li>เริ่ม implement หน้าไหนก่อนก็ได้ แต่แนะนำ login → list → form → dashboard (dashboard ต้องมีข้อมูลก่อนถึงเห็นผล)</li>
+    </ul>
+  </div>
+
+</div>
+</body>
+</html>
