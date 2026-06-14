@@ -41,8 +41,8 @@
 Task ย่อย:
 - [x] ตั้งโปรเจกต์ Next.js + TypeScript
 - [x] ตั้ง Prisma + เชื่อม Postgres
-- [ ] สร้าง schema (User, Trade, Tag) + run migration
-- [ ] เข้าใจว่า migration คืออะไร (อธิบายได้)
+- [x] สร้าง schema (User, Trade, Tag) + run migration
+- [x] เข้าใจว่า migration คืออะไร (อธิบายได้)
 - [ ] ทำ register/login/logout ด้วย Auth.js
 - [ ] protect route ที่ต้อง login
 - [ ] เข้าใจ session vs token, password hashing (อธิบายได้)
