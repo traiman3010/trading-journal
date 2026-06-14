@@ -42,3 +42,5 @@ next-env.d.ts
 
 # personal notes (not for public)
 docs/knowledge/
+
+/app/generated/prisma

@@ -39,8 +39,8 @@
 เป้าหมาย: ตั้งโปรเจกต์ได้ + auth ใช้งานได้
 
 Task ย่อย:
-- [ ] ตั้งโปรเจกต์ Next.js + TypeScript
-- [ ] ตั้ง Prisma + เชื่อม Postgres
+- [x] ตั้งโปรเจกต์ Next.js + TypeScript
+- [x] ตั้ง Prisma + เชื่อม Postgres
 - [ ] สร้าง schema (User, Trade, Tag) + run migration
 - [ ] เข้าใจว่า migration คืออะไร (อธิบายได้)
 - [ ] ทำ register/login/logout ด้วย Auth.js
