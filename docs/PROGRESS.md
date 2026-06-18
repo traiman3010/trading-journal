@@ -4,7 +4,7 @@
 > อัปเดตตามจริง (ซื่อสัตย์กับตัวเอง) แล้วโยนให้ Claude วิเคราะห์ทุกจบ sprint
 >
 > **ฐานเวลา:** 1-2 ชม./วัน = ~7-14 ชม./สัปดาห์ · 1 sprint = 2 สัปดาห์
-> **เริ่ม:** _(เติมวันที่เริ่มจริง)_
+> **เริ่ม:** 2026-06-08
 
 ---
 
@@ -46,7 +46,7 @@ Task ย่อย:
 - [ ] ทำ register/login/logout ด้วย Auth.js
 - [ ] protect route ที่ต้อง login
 - [ ] เข้าใจ session vs token, password hashing (อธิบายได้)
-- [ ] commit + push ขึ้น GitHub
+- [x] commit + push ขึ้น GitHub (ทำสม่ำเสมอตั้งแต่ 2026-06-08)
 
 **Checkpoint (เติมตามจริงตอนจบ sprint):**
 - ทำเสร็จกี่ %: ___
