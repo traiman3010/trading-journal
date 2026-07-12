@@ -72,26 +72,29 @@
 
 ---
 
-## 🚪 Block 4 — Login / Logout ด้วย Auth.js Credentials (~1.5 ชม.)
+## 🚪 Block 4 — Login / Logout ด้วย Auth.js Credentials (~1.5 ชม.) ✅
 
-- [ ] สร้าง Zod schema สำหรับ login
-- [ ] ใน `auth.ts` เพิ่ม `Credentials` provider พร้อม `authorize()` function:
-  - Zod parse credentials
-  - หา user ใน DB ตาม email
-  - **ถ้าไม่เจอ**: return `null` (Auth.js จะแสดง error generic)
-  - ถ้าเจอ: `verifyPassword()` เทียบ hash
-  - **ถ้าไม่ตรง**: return `null` (error message เหมือนกับกรณี email ไม่มี — user enumeration protection)
-  - ถ้าตรง: return user object (⚠️ ห้ามใส่ field password)
-- [ ] ตั้ง session strategy = `"jwt"` (default อยู่แล้ว แต่เขียน explicit ให้ชัด)
-- [ ] ทดสอบ login ผ่าน Auth.js signin page default (`/api/auth/signin`)
+- [x] สร้าง Zod schema สำหรับ login (reused from Block 3)
+- [x] ใน `auth.ts` เพิ่ม `Credentials` provider พร้อม `authorize()`:
+  - Zod safeParse credentials ✅
+  - หา user ใน DB ตาม email (findUnique — ต้องดึง password ครั้งนี้) ✅
+  - return `null` ถ้าไม่เจอ ✅
+  - `verifyPassword()` เทียบ hash ✅
+  - return `null` ถ้าไม่ตรง ✅
+  - return safe user object `{ id, email }` ✅ (ไม่มี password, ไม่มี createdAt เพื่อ JWT lean)
+- [x] session strategy = `"jwt"` explicit
+- [x] ทดสอบ login ผ่าน `/api/auth/signin`
 
-**⚠️ Security checkpoint:**
-- [ ] error message เหมือนกันเป๊ะระหว่าง "email ไม่มี" กับ "password ผิด"
-- [ ] เปิด DevTools > Application > Cookies ดู session cookie มี `HttpOnly` flag ไหม (ต้องมี)
+**⚠️ Security checkpoint — ผ่านทั้งหมด:**
+- [x] error message เหมือนเป๊ะทั้ง 3 case (invalid format / no user / wrong password) → "Sign in failed"
+- [x] Cookie `authjs.session-token` มี `HttpOnly` ✓ + `SameSite=Lax` ✓
+- [x] Logout ลบ `authjs.session-token` สำเร็จ (`callback-url` + `csrf-token` อยู่ต่อ = ปกติ)
 
-**เรียนรู้:**
-- `authorize()` return `null` vs throw error ต่างกันยังไงในสายตา Auth.js?
-- JWT ที่ Auth.js สร้าง เก็บอะไรไว้บ้าง? (decode ที่ jwt.io — แต่**อย่า** paste production JWT!)
+**Concept ที่ผ่านแล้ว (interview-ready):**
+- ✅ JWT vs session-based auth — trade-off, Auth.js default = JWT
+- ✅ `authorize()` return `null` แทน throw → enumeration protection
+- ✅ 3 กลุ่ม cookie ของ Auth.js: session-token / csrf-token / callback-url
+- ✅ JWT stateless → logout = ลบ cookie แค่ฝั่ง client (JWT ที่ถูก copy ไป ยัง valid จน expire)
 
 ---
 
