@@ -9,11 +9,11 @@
 
 ---
 
-## 🧹 Block 0 — เคลียร์บ้านก่อนเริ่ม (~15 นาที)
+## 🧹 Block 0 — เคลียร์บ้านก่อนเริ่ม (~15 นาที) ✅
 
-- [ ] ตรวจ `.gitignore` มี `.env*` และ `.env.local` ครบไหม (ห้ามให้ secret หลุด)
-- [ ] จัดการ `test.js` ที่อยู่ root — ลบถ้าไม่ใช้ หรือย้ายไปที่ที่เหมาะสม
-- [ ] push commit ค้าง 2 ตัวขึ้น `origin/main` (portfolio ต้องเห็นความคืบหน้าบน GitHub)
+- [x] ตรวจ `.gitignore` มี `.env*` และ `.env.local` ครบไหม — pattern `.env*` + `!.env.example` ครอบคลุมแล้ว, `git ls-files` ยืนยัน `.env` ไม่ถูก track
+- [x] จัดการ `test.js` ที่อยู่ root — ไม่มีไฟล์นี้แล้ว (ไม่ต้องทำอะไร)
+- [x] push commit ค้างขึ้น `origin/main` — push 3 auth commits (`504cd3d`, `a14f288`, `6cd97fd`) สำเร็จ
 
 **เรียนรู้:** ทำไม `.env` ห้าม commit? เกิดอะไรถ้าหลุดขึ้น public repo? (คำใบ้: `git filter-branch`, secret scanner, cost of key rotation)
 
@@ -21,13 +21,13 @@
 
 ## 📦 Block 1 — Install & Config พื้นฐาน (~30 นาที)
 
-- [ ] ติดตั้ง dependency:
-  - `next-auth@beta` (Auth.js v5)
-  - `bcryptjs` และ `@types/bcryptjs`
-  - `zod` (ถ้ายังไม่มี)
-- [ ] Generate `AUTH_SECRET` ด้วยคำสั่ง `npx auth secret` → ตรวจว่ามันเขียนลง `.env.local` แล้ว
-- [ ] สร้าง `.env.example` (template ไม่มีค่าจริง) — สำหรับให้คนอื่นรู้ว่าต้องตั้ง env อะไรบ้าง
-- [ ] เพิ่ม `DATABASE_URL` ใน `.env.example` (ไม่ใส่ค่าจริง)
+- [x] ติดตั้ง dependency:
+  - `next-auth@beta` (Auth.js v5) ✓
+  - `bcryptjs` และ `@types/bcryptjs` ✓
+  - `zod` ✓
+- [ ] Generate `AUTH_SECRET` ด้วยคำสั่ง `npx auth secret` → ตรวจว่ามันเขียนลง `.env.local` แล้ว (ยังต้อง verify)
+- [x] สร้าง `.env.example` (template ไม่มีค่าจริง)
+- [x] เพิ่ม `DATABASE_URL` ใน `.env.example`
 
 **เรียนรู้:** ทำไมต้องมี `.env.example`? มันต่างจาก `.env` ยังไง? (คำใบ้: onboarding developer ใหม่, CI/CD)
 
@@ -35,10 +35,10 @@
 
 ## ⚙️ Block 2 — Auth.js Skeleton (~30 นาที)
 
-- [ ] สร้าง `auth.ts` ที่ root — export `{ handlers, signIn, signOut, auth }` จาก `NextAuth()`
-- [ ] สร้าง `app/api/auth/[...nextauth]/route.ts` — export `{ GET, POST }` จาก `handlers`
-- [ ] ยัง**ไม่ต้อง**ใส่ providers ตอนนี้ ปล่อยว่างไว้ก่อน (เดี๋ยว block 4 ค่อยเติม Credentials)
-- [ ] ลอง `npm run dev` ให้ผ่าน (build ต้องไม่พัง)
+- [x] สร้าง `auth.ts` ที่ root — export `{ handlers, signIn, signOut, auth }` จาก `NextAuth()`
+- [x] สร้าง `app/api/auth/[...nextauth]/route.ts` — export `{ GET, POST }` จาก `handlers`
+- [x] ยัง**ไม่ต้อง**ใส่ providers ตอนนี้ ปล่อยว่างไว้ก่อน (เดี๋ยว block 4 ค่อยเติม Credentials)
+- [ ] ลอง `npm run dev` ให้ผ่าน (build ต้องไม่พัง) ← ยังไม่ได้ verify
 
 **เรียนรู้ที่ต้องเข้าใจก่อนไปต่อ:**
 - `[...nextauth]` (catch-all route) คืออะไร? ทำไม Auth.js ต้องใช้?
@@ -48,6 +48,10 @@
 
 ## 🔐 Block 3 — Register API (เขียนเอง เพราะ Auth.js ไม่ทำให้) (~1.5 ชม.)
 
+> 🟡 **สถานะปัจจุบัน:** `lib/prisma.ts` (Neon adapter + Prisma client singleton) เตรียมไว้แล้ว
+> แต่ยัง untracked + `@prisma/adapter-neon` ใน `package.json` ก็ยังไม่ commit → commit เก็บให้เรียบร้อยก่อนเดินหน้าต่อ
+
+- [ ] commit `lib/prisma.ts` + `@prisma/adapter-neon` (block 3 preflight)
 - [ ] สร้าง Zod schema สำหรับ register: `email` (format email), `password` (min 8)
 - [ ] สร้าง helper `lib/hash.ts` — 2 function: `hashPassword(plain)` และ `verifyPassword(plain, hash)` ด้วย bcryptjs cost 12
 - [ ] สร้าง route handler `app/api/auth/register/route.ts`:
