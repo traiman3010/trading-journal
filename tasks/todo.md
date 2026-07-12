@@ -46,29 +46,29 @@
 
 ---
 
-## 🔐 Block 3 — Register API (เขียนเอง เพราะ Auth.js ไม่ทำให้) (~1.5 ชม.)
+## 🔐 Block 3 — Register API (เขียนเอง เพราะ Auth.js ไม่ทำให้) (~1.5 ชม.) ✅
 
-> 🟡 **สถานะปัจจุบัน:** `lib/prisma.ts` (Neon adapter + Prisma client singleton) เตรียมไว้แล้ว
-> แต่ยัง untracked + `@prisma/adapter-neon` ใน `package.json` ก็ยังไม่ commit → commit เก็บให้เรียบร้อยก่อนเดินหน้าต่อ
+- [x] commit `lib/prisma.ts` + `@prisma/adapter-neon` (block 3 preflight)
+- [x] สร้าง Zod schema สำหรับ register: `email` (format email), `password` (min 8)
+- [x] สร้าง helper `lib/hash.ts` — 2 function: `hashPassword(plain)` และ `verifyPassword(plain, hash)` ด้วย bcryptjs cost 12
+- [x] สร้าง route handler `app/api/auth/register/route.ts`:
+  - รับ POST body ✅
+  - Zod safeParse (return 400 พร้อม issues) ✅
+  - เช็ค email ซ้ำใน DB (409 Conflict) ✅
+  - hash password ✅
+  - `prisma.user.create({ data, select })` — select ไม่รวม password ✅
+  - return 201 Created ✅
+- [x] test ด้วย curl 4 scenarios: happy (201), duplicate (409), short password (400), invalid JSON (500)
+- [x] Prisma Studio verify: password stored as `$2b$12$...` bcrypt hash
 
-- [ ] commit `lib/prisma.ts` + `@prisma/adapter-neon` (block 3 preflight)
-- [ ] สร้าง Zod schema สำหรับ register: `email` (format email), `password` (min 8)
-- [ ] สร้าง helper `lib/hash.ts` — 2 function: `hashPassword(plain)` และ `verifyPassword(plain, hash)` ด้วย bcryptjs cost 12
-- [ ] สร้าง route handler `app/api/auth/register/route.ts`:
-  - รับ POST body
-  - Zod parse (ถ้าล้ม return 400 พร้อม error ที่อ่านเข้าใจได้)
-  - เช็ค email ซ้ำใน DB
-  - hash password
-  - `prisma.user.create({...})`
-  - return success (⚠️ ห้าม return password field กลับ)
-- [ ] test ด้วย curl หรือ Postman: ลอง register user ทดสอบ 1 คน แล้วเปิด DB (Prisma Studio: `npx prisma studio`) ยืนยันว่า password ในตารางเป็น **hash** ไม่ใช่ plaintext
+**⚠️ Security checkpoint — ผ่านทั้งหมด:**
+- [x] password ใน DB เป็น hash ที่ขึ้นต้นด้วย `$2b$12$` (bcrypt cost 12)
+- [x] response ไม่มี field password (select เฉพาะ id, email, createdAt)
+- [x] register email ซ้ำ → reject ด้วย 409 "Email already registered"
 
-**⚠️ Security checkpoint — ก่อนไปต่อต้องผ่าน:**
-- [ ] password ใน DB เป็น hash ที่ขึ้นต้นด้วย `$2a$` หรือ `$2b$` (bcrypt signature)
-- [ ] response ที่ return กลับ**ไม่มี** field password (แม้จะ hash แล้วก็ไม่ส่งกลับ)
-- [ ] ลอง register email ซ้ำ → ต้อง reject พร้อม error ที่เหมาะสม
-
-**เรียนรู้:** ทำไม cost = 12 ไม่ใช่ 10 หรือ 14? (คำใบ้: OWASP guideline, benchmark server ตัวเอง)
+**🔖 Follow-up สำหรับ sprint หลัง:**
+- refactor error handling เป็น Pattern C (hybrid try/catch): แยก JSON parse fail = 400 กับ business logic error = 500
+- ตอนนี้ทั้งคู่ตก 500 = semantic drift แต่ยอมรับได้สำหรับ MVP
 
 ---
 
