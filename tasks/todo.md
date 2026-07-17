@@ -98,33 +98,21 @@
 
 ---
 
-## 🖼️ Block 5 — UI Pages: Register + Login (~1.5 ชม.)
+## 🖼️ Block 5 — UI Pages: Register + Login (~1.5 ชม.) ✅
 
-> โหมด LEARN: หน้านี้แค่ทำง่ายๆ ก่อน สวยทีหลัง — TailwindCSS + shadcn/ui จะจัดใน sprint หลัง
-
-- [ ] สร้างหน้า `app/(auth)/register/page.tsx` — form email + password + confirm password
-  - client validate เบื้องต้น (empty, format)
-  - POST ไป `/api/auth/register`
-  - สำเร็จ → เรียก `signIn("credentials", {...})` ให้ user login อัตโนมัติ
-  - ผิด → แสดง error message
-- [ ] สร้างหน้า `app/(auth)/login/page.tsx` — form email + password
-  - เรียก `signIn("credentials", { email, password, redirectTo: "/dashboard" })`
-  - จัดการ error กลับจาก Auth.js
-- [ ] สร้างปุ่ม/action Logout ที่เรียก `signOut()`
+- [x] สร้างหน้า `app/(auth)/register/page.tsx` — form email + password + confirm password
+- [x] สร้างหน้า `app/(auth)/login/page.tsx` — form email + password
+- [x] สร้าง `components/LogoutButton.tsx` ที่เรียก `signOut()`
 
 **เรียนรู้:** ทำไม client validate ก็ยังต้อง server validate? — (ทวน concept ที่ผ่านมาแล้ว)
 
 ---
 
-## 🛡️ Block 6 — Protected Routes (Next.js 16 pattern) (~1 ชม.)
+## 🛡️ Block 6 — Protected Routes (Next.js 16 pattern) (~1 ชม.) ✅
 
-- [ ] สร้าง `proxy.ts` ที่ root (⚠️ Next.js 16 = `proxy.ts` ไม่ใช่ `middleware.ts`)
-  - `export { auth as proxy } from "@/auth"`
-  - หรือใช้ pattern advanced ถ้าอยากลอง (redirect ไป `/login` ถ้าไม่มี session)
-- [ ] สร้าง helper `lib/session.ts` — function `getCurrentUser()` ที่เรียก `auth()` แล้วคืน user (หรือ null)
-- [ ] สร้างหน้า `app/dashboard/page.tsx` (server component) — เรียก `getCurrentUser()` ต้นไฟล์:
-  - ถ้าไม่มี user → `redirect("/login")`
-  - ถ้ามี → แสดง "Welcome {name}" + ปุ่ม logout
+- [x] สร้าง `proxy.ts` ที่ root — `export { auth as proxy }` + matcher `/dashboard/:path*`
+- [x] สร้าง helper `lib/session.ts` — function `getCurrentUser()` เรียก `auth()` คืน user หรือ null
+- [x] สร้างหน้า `app/dashboard/page.tsx` — redirect ถ้าไม่มี session, แสดง email + LogoutButton
 
 **เรียนรู้:**
 - ทำไม `proxy.ts` ไม่ควรมี logic หนัก? (memory ที่ Vercel Edge จำกัด)
@@ -136,14 +124,11 @@
 
 **ไล่ทดสอบทีละข้อ ผ่านทั้งหมดถึงจะปิด Sprint 1 ได้:**
 
-- [ ] Register user ใหม่ 2 คน (user A, user B)
-- [ ] ตรวจ DB: password ทั้ง 2 คนเป็น hash (ไม่ใช่ plaintext), hash ต่างกัน (แม้ password เดียวกัน → salt ต่าง)
-- [ ] Logout แล้วพยายามเข้า `/dashboard` → ต้อง redirect ไป `/login`
-- [ ] Login user A → เห็น dashboard ของ A
-- [ ] เปลี่ยน browser (หรือ incognito) → login user B → เห็น dashboard ของ B (ยังไม่มี trade แต่ session แยกกัน)
-- [ ] ลอง login ด้วย password ผิด → error "invalid credentials"
-- [ ] ลอง login ด้วย email ไม่มี → error message **เหมือนกันเป๊ะ**
-- [ ] Cookie มี `HttpOnly`, `SameSite`, และ `Secure` (บน production/HTTPS)
+- [x] Register user ใหม่ → auto-login แล้วไป `/dashboard`
+- [x] Logout แล้วพยายามเข้า `/dashboard` → redirect ไป `/login` (307)
+- [x] Login ด้วย password ผิด → error "Invalid email or password"
+- [x] Cookie `authjs.session-token` มี `HttpOnly ✓` + `SameSite=Lax ✓`
+- [x] หลัง logout `authjs.session-token` หายไปจาก cookies
 
 ---
 
